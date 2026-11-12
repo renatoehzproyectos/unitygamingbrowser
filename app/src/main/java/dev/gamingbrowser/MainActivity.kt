@@ -145,7 +145,7 @@ class MainActivity : ComponentActivity() {
         launcher.visibility = View.GONE; gameBox.visibility = View.VISIBLE
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        setImmersive(prefs.fullscreen)
+        applyImmersive(prefs.fullscreen)
         tel.reset(); stab.beginSession()
 
         val wv = GameWebView.create(this, url, tel, hookJs, GameHost(
@@ -170,7 +170,7 @@ class MainActivity : ComponentActivity() {
         gameBox.visibility = View.GONE; launcher.visibility = View.VISIBLE
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        setImmersive(false)
+        applyImmersive(false)
         stab.log("sesión cerrada por el usuario")
     }
 
@@ -189,7 +189,7 @@ class MainActivity : ComponentActivity() {
         val extra = "ctxLost=${tel.contextLost} jsErr=${tel.jsErrors} pss=${perf.pssMb}MB avail=${perf.availMb}MB therm=${perf.thermalName(perf.thermalStatus)}"
         val repeated = stab.onRendererGone(crashed, extra)
         destroyWebView()
-        setImmersive(false)
+        applyImmersive(false)
         AlertDialog.Builder(this)
             .setTitle(if (crashed) "El renderer se ha cerrado (crash)" else "El sistema cerró el renderer (memoria)")
             .setMessage(
@@ -233,7 +233,7 @@ class MainActivity : ComponentActivity() {
                 4 -> showText("Estabilidad", stab.tail(40))
                 5 -> exitGaming()
             }
-        }.setOnDismissListener { if (gaming) setImmersive(prefs.fullscreen) }.show()
+        }.setOnDismissListener { if (gaming) applyImmersive(prefs.fullscreen) }.show()
     }
 
     private fun startBench() {
@@ -312,11 +312,11 @@ class MainActivity : ComponentActivity() {
         if (copy) b.setNeutralButton("Copiar") { _, _ ->
             getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("bench", body))
         }
-        b.setOnDismissListener { if (gaming) setImmersive(prefs.fullscreen) }.show()
+        b.setOnDismissListener { if (gaming) applyImmersive(prefs.fullscreen) }.show()
     }
 
     // ------------------------------------------------------------ Sistema
-    private fun setImmersive(on: Boolean) {
+    private fun applyImmersive(on: Boolean) {
         val c = WindowInsetsControllerCompat(window, window.decorView)
         if (on) {
             c.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -339,7 +339,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus && gaming) setImmersive(prefs.fullscreen)
+        if (hasFocus && gaming) applyImmersive(prefs.fullscreen)
     }
 
     override fun onResume() { super.onResume(); webView?.onResume() }
