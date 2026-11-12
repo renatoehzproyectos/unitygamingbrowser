@@ -1,24 +1,20 @@
-# Unity Gaming Browser (Android)
+# Rocket World – lanzador Android (Trusted Web Activity)
 
-WebView único a pantalla completa para juegos Unity WebGL. Kotlin, minSdk 29, Android Studio (Ladybug+). **Sin compilar todavía** (no hay Android SDK en mi entorno): espera una pequeña iteración de errores de compilación.
+**Por qué ya no es un WebView:** el juego exige `crossOriginIsolated` (COOP/COEP) y Android WebView no soporta COOP, así que SharedArrayBuffer/WASM con hilos nunca funcionan allí. Esta app lanza `https://rocket-world.vercel.app/?anticrash=0` en el Chrome real mediante una Trusted Web Activity (inmersiva, horizontal).
 
 ## Compilar
-Abrir la carpeta en Android Studio → Sync → Run en el dispositivo (o `./gradlew assembleDebug`; si falta el wrapper: `gradle wrapper --gradle-version 8.9`).
+Sube esta carpeta a la raíz de un repo (`main`): el workflow `build-apk.yml` publica el APK en Releases.
 
-## Uso
-URL → Play. En partida: **gesto de 3 dedos** o **Atrás** = menú; **Volumen +** = Performance Monitor. Menú → Benchmark (mismo juego/escena/duración).
-Resultados: `/sdcard/Android/data/dev.gamingbrowser/files/benchmarks/*.json` (adb pull) → `python tools/compare_bench.py a.json b.json`.
-Para Rocket World usa `?anticrash=0` (el "Anti crash" del juego arranca con escala/DoF/motion blur al mínimo y los modula) y revisa `?scale=` (por defecto 2.0 = supersampling x2).
-Depuración remota: build debug + `chrome://inspect`.
+## Quitar la barra de URL (obligatorio para pantalla completa real)
+Sin verificación, Chrome abre el juego como Custom Tab (barra visible; el juego sí funciona). Para TWA completa:
+1. Copia `.well-known-for-your-game/.well-known/assetlinks.json` a la raíz del **repo del juego** (`/.well-known/assetlinks.json`) y despliega en Vercel.
+2. Comprueba que `https://rocket-world.vercel.app/.well-known/assetlinks.json` carga.
+3. Reinstala la app (o borra datos de Chrome para el sitio) para que Chrome revalide.
+Firma fija: `debug.keystore` (clave personal, pública en el repo; no uses esta app para nada sensible). SHA-256: ver el resumen de cada build.
 
-## Qué mide cada cosa (honesto)
-- **FPS de página (rAF)**: cadencia de requestAnimationFrame; estimación de presentación. Los FPS internos de Unity solo aparecen si el juego escribe `window.__gb.unityFps`.
-- **UI nativa**: FrameMetrics de la ventana de la app (no del proceso renderer).
-- **Memoria**: PSS de la app; el proceso renderer (donde vive el heap WASM) no es medible desde fuera.
-- **Térmico**: estado oficial + headroom (API 30+) + temperatura de batería (aproximación).
-- **Frecuencia de pantalla**: por defecto se iguala al FPS objetivo (60 Hz) para un ritmo de vsync estable; "máximo" usa el panel completo (el juego irá a 144 si puede).
-- WebView no permite elegir backend gráfico ni flags de Chromium; eso queda para el Chromium propio (la capa `GameWebView` aísla ese cambio).
+## Limitaciones
+- No hay overlay, benchmark ni hooks JS (Chrome no deja inyectar código en una TWA). Usa el HUD del juego (`DebugHud`) y `?bench=1`.
+- No controlamos la frecuencia de pantalla ni FLAG_KEEP_SCREEN_ON: pon el tiempo de pantalla al máximo, o que el juego pida `navigator.wakeLock`.
+- Antes de medir, comprueba en Chrome `chrome://gpu` (WebGL2 acelerado por hardware).
 
-## Compilar sin Android Studio (GitHub Actions)
-Sube el contenido de esta carpeta a la raíz de un repo → rama `main`. El workflow `.github/workflows/build-apk.yml` compila el APK y lo publica en **Releases** (descargable desde el móvil) y como artifact. Si falla la compilación, el error está en Actions → run → paso "Compilar APK".
-Instalar: abrir el .apk en el móvil (permitir "instalar apps desconocidas" para el navegador/gestor de archivos).
+`legacy-webview/` conserva el código del WebView anterior (no se compila).

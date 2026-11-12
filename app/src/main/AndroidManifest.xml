@@ -1,28 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-feature android:name="android.hardware.touchscreen" android:required="true" />
 
     <application
-        android:label="Unity Gaming Browser"
+        android:label="Rocket World"
         android:appCategory="game"
-        android:hardwareAccelerated="true"
-        android:largeHeap="false"
-        android:networkSecurityConfig="@xml/network_security_config"
         android:allowBackup="false"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.Material.NoActionBar">
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
+        <!-- Digital Asset Links, lado app -> sitio -->
+        <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
+
+        <!-- Trusted Web Activity: el juego corre en el Chrome real (soporta COOP/COEP, SharedArrayBuffer y WASM con hilos) -->
         <activity
-            android:name=".MainActivity"
+            android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
             android:exported="true"
-            android:launchMode="singleTask"
-            android:screenOrientation="unspecified"
-            android:windowSoftInputMode="adjustResize"
-            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|density|uiMode|colorMode|fontScale|locale|layoutDirection">
+            android:alwaysRetainTaskState="true"
+            android:screenOrientation="sensorLandscape"
+            android:label="Rocket World">
+            <meta-data android:name="android.support.customtabs.trusted.DEFAULT_URL" android:value="@string/launch_url" />
+            <meta-data android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR" android:resource="@color/black" />
+            <meta-data android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR" android:resource="@color/black" />
+            <meta-data android:name="android.support.customtabs.trusted.DISPLAY_MODE" android:value="immersive" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="rocket-world.vercel.app" />
             </intent-filter>
         </activity>
     </application>

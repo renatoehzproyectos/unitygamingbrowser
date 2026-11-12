@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "dev.gamingbrowser",
+    "sha256_cert_fingerprints": ["5F:FB:73:CB:1F:B0:70:C4:0E:FA:D0:EC:CD:AF:5C:74:AA:F8:6F:8C:77:99:B6:4C:E4:AB:06:F8:DA:D3:37:96"]
+  }
+}]
