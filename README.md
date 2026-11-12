@@ -18,3 +18,7 @@ Depuración remota: build debug + `chrome://inspect`.
 - **Térmico**: estado oficial + headroom (API 30+) + temperatura de batería (aproximación).
 - **Frecuencia de pantalla**: por defecto se iguala al FPS objetivo (60 Hz) para un ritmo de vsync estable; "máximo" usa el panel completo (el juego irá a 144 si puede).
 - WebView no permite elegir backend gráfico ni flags de Chromium; eso queda para el Chromium propio (la capa `GameWebView` aísla ese cambio).
+
+## Compilar sin Android Studio (GitHub Actions)
+Sube el contenido de esta carpeta a la raíz de un repo → rama `main`. El workflow `.github/workflows/build-apk.yml` compila el APK y lo publica en **Releases** (descargable desde el móvil) y como artifact. Si falla la compilación, el error está en Actions → run → paso "Compilar APK".
+Instalar: abrir el .apk en el móvil (permitir "instalar apps desconocidas" para el navegador/gestor de archivos).
